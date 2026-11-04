@@ -1,0 +1,289 @@
+
+---
+title: "Análise da Produção de Mel"
+subtitle: "Análise das unidades produtoras entre 2023 e 2025"
+author: "Annelise Poletto"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    theme: cosmo
+    fig-cap-location: bottom
+    tbl-cap-location: top
+lang: pt-BR
+execute:
+  echo: false
+  warning: false
+  message: false
+crossref:
+  fig-title: "Figura"
+  tbl-title: "Tabela"
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+library(targets)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+
+# Carregamento dos resultados produzidos pelo pipeline
+
+tar_load(c(
+  cadastro,
+  mel_integrado,
+  conferencia,
+  resumo_unidade,
+  resumo_categoria,
+  resumo_categoria_ano,
+  dados_sazonalidade,
+  extremos_sazonalidade,
+  media_anual,
+  variacao_anual,
+  media_categoria
+))
+```
+
+## Os dados
+
+Os dados desta Lista 03 foram sorteados para o login `annelisepoletto` e têm como tema o mel colhido nos apiários de uma cooperativa. A unidade de observação é o apiário, e o conjunto de dados contempla informações cadastrais das unidades produtoras e registros mensais de produção referentes ao período de `r min(mel_integrado$ano)` a `r max(mel_integrado$ano)`.
+
+O cadastro contém `r dplyr::n_distinct(cadastro$codigo)` unidades produtoras, das quais `r dplyr::n_distinct(mel_integrado$codigo)` apresentam registros de produção. A unidade sem medições é `r paste(cadastro$codigo[!(cadastro$codigo %in% unique(mel_integrado$codigo))], cadastro$nome[!(cadastro$codigo %in% unique(mel_integrado$codigo))], sep = " - ", collapse = ", ")`.
+
+A produção de mel é originalmente medida em quilogramas (kg). Para permitir a comparação entre unidades produtoras de diferentes portes, também foi calculada a produção relativa, obtida pela divisão da quantidade de mel produzida pelo número de colmeias, expressa em kg por colmeia.
+
+A Tabela @tbl-conferencia apresenta a conferência dos registros de produção, considerando o número de linhas, as unidades com medições, os meses sem registro e a soma dos valores registrados em cada ano.
+
+```{r}
+#| label: tbl-conferencia
+#| tbl-cap: "Conferência anual dos dados de produção."
+
+conferencia %>%
+  dplyr::mutate(ano = as.character(ano)) %>%
+  knitr::kable(
+    col.names = c(
+      "Ano",
+      "Número de linhas",
+      "Unidades com medições",
+      "Meses sem registro",
+      "Soma da produção (kg)"
+    ),
+    digits = c(0, 0, 0, 0, 1),
+    format.args = list(
+      big.mark = ".",
+      decimal.mark = ","
+    )
+  )
+```
+
+Os meses sem registro foram representados como valores ausentes (NA), conforme indicado no arquivo `LEIA-ME.txt`. Esses valores foram mantidos como ausentes, sem substituição por zero ou imputação, uma vez que a ausência de registro não significa necessariamente ausência de produção. Assim, as somas anuais consideram somente os valores efetivamente registrados.
+
+## Sazonalidade da produção
+
+A análise da sazonalidade permite observar como a produção relativa de mel se distribui ao longo dos meses do ano, possibilitando identificar períodos de maior e menor produtividade e comparar o comportamento entre os anos analisados.
+
+A Figura @fig-sazonalidade apresenta a evolução da média mensal da produção relativa de mel, considerando uma linha para cada ano analisado.
+
+```{r}
+#| label: fig-sazonalidade
+#| fig-cap: "Média mensal da produção relativa de mel por ano."
+#| fig-width: 10
+#| fig-height: 6
+
+ggplot(
+  dados_sazonalidade,
+  aes(
+    x = mes,
+    y = media_relativa,
+    color = factor(ano),
+    group = ano
+  )
+) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2.5) +
+  labs(
+    x = "Mês",
+    y = "Média da produção relativa (kg por colmeia)",
+    color = "Ano"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1
+    )
+  )
+```
+
+Os meses que apresentaram as menores e maiores médias de produção relativa em cada ano estão reunidos na Tabela @tbl-extremos-sazonalidade.
+
+```{r}
+
+#| label: tbl-extremos-sazonalidade
+#| tbl-cap: "Meses de maior e menor média da produção relativa por ano."
+
+extremos_sazonalidade %>%
+  dplyr::mutate(
+    ano = as.character(ano)
+  ) %>%
+  knitr::kable(
+    col.names = c(
+      "Ano",
+      "Mês",
+      "Média da produção relativa",
+      "Classificação"
+    ),
+    digits = c(0, 0, 3, 0),
+    format.args = list(
+      decimal.mark = ",",
+      big.mark = "."
+    )
+  )
+```
+
+Observa-se que os menores valores ocorreram em `r paste(unique(as.character(extremos_sazonalidade$mes[extremos_sazonalidade$classificacao == "Menor média"])), collapse = ", ")`. Já os maiores valores foram registrados em `r paste(paste0(extremos_sazonalidade$ano[extremos_sazonalidade$classificacao == "Maior média"], " (", as.character(extremos_sazonalidade$mes[extremos_sazonalidade$classificacao == "Maior média"]), ")"), collapse = "; ")`.
+
+De maneira geral, as curvas apresentam um comportamento sazonal semelhante, com redução da produção relativa nos primeiros meses do ano e recuperação a partir do segundo semestre.
+
+## Variação entre 2023 e 2025
+
+A Tabela @tbl-media-anual apresenta a média da produção relativa para cada ano analisado, permitindo comparar o comportamento da produtividade ao longo do período.
+
+```{r}
+#| label: tbl-media-anual
+#| tbl-cap: "Média anual da produção relativa."
+
+media_anual %>%
+  dplyr::mutate(ano = as.character(ano)) %>%
+  knitr::kable(
+    col.names = c(
+      "Ano",
+      "Média da produção relativa (kg por colmeia)"
+    ),
+    digits = 3,
+    format.args = list(
+      decimal.mark = ",",
+      big.mark = "."
+    )
+  )
+```
+
+Entre `r variacao_anual |> dplyr::pull(media_2023) |> format(decimal.mark = ",", big.mark = ".", nsmall = 3, scientific = FALSE, trim = TRUE)` e `r format(variacao_anual$media_2025, decimal.mark = ",", big.mark = ".", nsmall = 3, scientific = FALSE, trim = TRUE)`, a variação percentual da média da produção relativa foi de `r paste0(format(variacao_anual$variacao_percentual, decimal.mark = ",", big.mark = ".", nsmall = 2, scientific = FALSE, trim = TRUE), "%")`.
+
+Esse resultado representa um `r ifelse(variacao_anual$variacao_percentual >= 0, "aumento", "redução")` da média da produção relativa entre os anos comparados.
+
+A comparação foi realizada utilizando a média da produção relativa, e não a produção total, pois o volume total de mel pode ser influenciado pelo porte dos apiários e pelo número de colmeias. A medida relativa permite comparar a produtividade considerando a quantidade de colmeias de cada unidade produtora, reduzindo o efeito das diferenças de escala.
+
+## Diferenças entre categorias de florada
+
+A análise por categoria de florada permite comparar a distribuição da produção relativa entre os diferentes tipos de florada, identificando possíveis diferenças no desempenho das unidades produtoras.
+
+A Figura @fig-categorias apresenta a distribuição da produção relativa para as categorias Eucalipto, Laranjeira e Silvestre.
+
+```{r}
+#| label: fig-categorias
+#| fig-cap: "Distribuição da produção relativa por categoria de florada."
+#| fig-width: 9
+#| fig-height: 6
+
+ggplot(
+  mel_integrado,
+  aes(
+    x = florada,
+    y = mel_relativo,
+    fill = florada
+  )
+) +
+  geom_boxplot(
+    alpha = 0.7,
+    show.legend = FALSE
+  ) +
+  labs(
+    x = "Categoria de florada",
+    y = "Produção relativa (kg por colmeia)"
+  ) +
+  theme_minimal()
+```
+
+A Tabela @tbl-media-categoria apresenta as médias da produção relativa para cada categoria de florada.
+
+```{r}
+#| label: tbl-media-categoria
+#| tbl-cap: "Média da produção relativa por categoria de florada."
+
+resumo_categoria_ano %>%
+  dplyr::mutate(ano = as.character(ano)) %>%
+  knitr::kable(
+    col.names = c(
+      "Ano",
+      "Categoria de florada",
+      "Produção total (kg)",
+      "Participação na produção do ano"
+    ),
+    digits = c(0, 0, 1, 3),
+    format.args = list(
+      decimal.mark = ",",
+      big.mark = "."
+    )
+  )
+```
+
+A categoria com maior média de produção relativa foi `r media_categoria$florada[which.max(media_categoria$media_relativa)]`, enquanto a menor média foi observada em `r media_categoria$florada[which.min(media_categoria$media_relativa)]`.
+
+A comparação das médias evidencia resultados bastante próximos entre as categorias de florada. Apesar das pequenas diferenças observadas, os resultados indicam que não há uma variação expressiva na produção relativa média entre as categorias analisadas.
+
+## Tabelas da Lista 03
+
+### Produção por unidade produtora
+
+A Tabela @tbl-unidade apresenta os indicadores de produção para cada unidade produtora cadastrada, permitindo comparar o volume produzido e a participação de cada apiário na produção total.
+
+```{r}
+#| label: tbl-unidade
+#| tbl-cap: "Indicadores de produção por unidade produtora."
+
+knitr::kable(
+  resumo_unidade,
+  col.names = c(
+    "Código",
+    "Unidade produtora",
+    "Categoria de florada",
+    "Produção total (kg)",
+    "Participação na produção"
+  ),
+  digits = c(0, 0, 0, 1, 3),
+  format.args = list(
+    decimal.mark = ",",
+    big.mark = "."
+  )
+)
+```
+
+### Produção por categoria de florada e ano
+
+A Tabela @tbl-categoria-ano apresenta a produção total e a participação relativa de cada categoria de florada ao longo dos anos analisados, permitindo comparar a contribuição das categorias para a produção anual.
+
+```{r}
+#| label: tbl-categoria-ano
+#| tbl-cap: "Produção por categoria de florada e ano."
+
+resumo_categoria_ano %>%
+  dplyr::mutate(ano = as.character(ano)) %>%
+  knitr::kable(
+    col.names = c(
+      "Ano",
+      "Categoria de florada",
+      "Produção total (kg)",
+      "Participação na produção do ano"
+    ),
+    digits = c(0, 0, 1, 3),
+    format.args = list(
+      decimal.mark = ",",
+      big.mark = "."
+    )
+  )
+```
