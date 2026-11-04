@@ -1,0 +1,14 @@
+# Arquivos gerados pelo pipeline
+_targets/
+
+# Arquivos gerados pelo Quarto
+relatorio.html
+relatorio_files/
+analise.html
+analise_files/
+
+# Arquivos temporários do R
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/

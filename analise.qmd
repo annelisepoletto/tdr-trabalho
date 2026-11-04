@@ -1,0 +1,231 @@
+---
+title: "analise.qmd"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+---
+title: "Mel colhido nos apiários de uma cooperativa"
+author: "Annelise Poletto"
+lang: pt-BR
+format:
+  html:
+    self-contained: true
+---
+
+# Exercício 1 — O documento e a leitura
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+mel_long <- mel_2023 %>%
+  pivot_longer(
+    cols = jan:dez,
+    names_to = "mes",
+    values_to = "mel"
+  ) %>%
+  mutate(
+    mes = factor(
+      mes,
+      levels = c(
+        "jan", "fev", "mar", "abr", "mai", "jun",
+        "jul", "ago", "set", "out", "nov", "dez"
+      )
+    )
+  )
+nrow(mel_long)
+
+sum(is.na(mel_long$mel))
+```
+```{r}
+mel_cadastro <- mel_long %>%
+  left_join(
+    cadastro,
+    by = join_by(codigo)
+  )
+nrow(mel_cadastro)
+mel_cadastro <- mel_cadastro %>%
+  mutate(
+    mel_relativo = mel / colmeias
+  )
+```
+```{r}
+anti_join(
+  cadastro,
+  mel_long,
+  by = join_by(codigo)
+)
+```
+
+```{r}
+resumo_unidade <- mel_cadastro %>%
+  group_by(codigo, nome, florada) %>%
+  summarise(
+    meses_com_registro = sum(!is.na(mel)),
+    total_ano = sum(mel, na.rm = TRUE),
+    media_mensal_relativa = mean(mel_relativo, na.rm = TRUE),
+    .groups = "drop"
+  )
+resumo_unidade
+```
+
+```{r}
+resumo_categoria <- mel_cadastro %>%
+  group_by(florada) %>%
+  summarise(
+    unidades = n_distinct(codigo),
+    total_ano = sum(mel, na.rm = TRUE),
+    media_mensal_relativa = mean(mel_relativo, na.rm = TRUE),
+    .groups = "drop"
+  )
+resumo_categoria
+```
+
+```{r}
+sum(resumo_categoria$total_ano)
+```
+
+O total anual de mel registrado em 2023 foi de `r format(sum(resumo_categoria$total_ano), decimal.mark = ",", big.mark = ".")` kg.
+# Exercício 5 — Todos os anos de uma vez
+
+```{r}
+arquivos <- list.files(
+  "dados",
+  pattern = "^mel_",
+  full.names = TRUE
+)
+
+arquivos
+
+```
+
+```{r}
+dados_anos <- map(
+  arquivos,
+  ~ read_delim(
+    .x,
+    delim = ";",
+    na = "-",
+    locale = locale(
+      encoding = "ISO-8859-1",
+      decimal_mark = ","
+    ),
+    col_types = cols(
+      codigo = col_character(),
+      jan = col_double(),
+      fev = col_double(),
+      mar = col_double(),
+      abr = col_double(),
+      mai = col_double(),
+      jun = col_double(),
+      jul = col_double(),
+      ago = col_double(),
+      set = col_double(),
+      out = col_double(),
+      nov = col_double(),
+      dez = col_double()
+    )
+  )
+)
+```
+
+```{r}
+dados_anos <- map2(
+  dados_anos,
+  arquivos,
+  ~ .x %>%
+    mutate(
+      ano = parse_number(basename(.y))
+    )
+)
+
+dados_anos
+```
+
+
+
+```{r}
+dados_todos <- list_rbind(dados_anos)
+
+dados_todos
+```
+```{r}
+names(dados_todos)
+```
+
+```{r}
+dados_longos <- dados_todos %>%
+  pivot_longer(
+    cols = jan:dez,
+    names_to = "mes",
+    values_to = "mel"
+  ) %>%
+  mutate(
+    mes = factor(
+      mes,
+      levels = c(
+        "jan", "fev", "mar", "abr", "mai", "jun",
+        "jul", "ago", "set", "out", "nov", "dez"
+      )
+    )
+  )
+
+dados_longos
+```
+```{r}
+mel_cadastro_anos <- dados_longos %>%
+  left_join(
+    cadastro,
+    by = join_by(codigo)
+  )
+
+nrow(mel_cadastro_anos)
+```
+
+```{r}
+mel_cadastro_anos <- mel_cadastro_anos %>%
+  mutate(
+    mel_relativo = mel / colmeias
+  )
+
+mel_cadastro_anos
+```
+
+```{r}
+tabela_apresentacao <- mel_cadastro_anos %>%
+  group_by(florada, ano) %>%
+  summarise(
+    total_ano = sum(mel, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  pivot_wider(
+    names_from = ano,
+    values_from = total_ano
+  )
+
+tabela_apresentacao
+```
+

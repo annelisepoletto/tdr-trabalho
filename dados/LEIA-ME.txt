@@ -1,0 +1,29 @@
+Lista 03 --- dados sorteados para o login annelisepoletto
+
+Tema: Mel colhido nos apiários de uma cooperativa
+Unidade de observação: apiário
+
+Arquivos
+
+  mel_2023.csv, mel_2024.csv, mel_2025.csv
+      Uma linha por unidade e uma coluna por mês do ano. A coluna
+      codigo identifica a unidade, e as colunas jan a dez trazem o
+      valor medido: mel colhido no mês, em kg.
+      Mês sem registro aparece como "-".
+
+  cadastro.csv
+      Uma linha por unidade, com as colunas:
+        codigo        identificador da unidade, o mesmo das medições
+        nome          nome da unidade
+        florada       categoria: Eucalipto, Silvestre ou Laranjeira
+        colmeias      porte: colmeias em produção
+
+Conferência
+
+  unidades no cadastro:   9
+  unidades com medições:  8
+
+  ano    meses sem registro    soma dos valores registrados
+  2023                    3                         49027,2
+  2024                    5                         50212,1
+  2025                    2                         50214,5
