@@ -1,4 +1,3 @@
-
 # ============================================================
 # Funções de transformação dos dados
 # ============================================================
@@ -9,12 +8,11 @@
 #' @return Tabela com uma linha por unidade e mês.
 
 arrumar_producao <- function(dados) {
-  
   meses <- c(
     "jan", "fev", "mar", "abr", "mai", "jun",
     "jul", "ago", "set", "out", "nov", "dez"
   )
-  
+
   dados %>%
     tidyr::pivot_longer(
       cols = dplyr::all_of(meses),
@@ -24,9 +22,7 @@ arrumar_producao <- function(dados) {
     dplyr::mutate(
       mes = factor(mes, levels = meses)
     )
-  
 }
-
 
 
 #' Empilha os arquivos anuais de produção
@@ -35,7 +31,6 @@ arrumar_producao <- function(dados) {
 #' @return Tabela com a produção de todos os anos.
 
 empilhar_anos <- function(caminhos) {
-  
   dados_anos <- purrr::map2(
     caminhos,
     purrr::map_int(
@@ -45,13 +40,11 @@ empilhar_anos <- function(caminhos) {
     ~ ler_producao(.x) %>%
       dplyr::mutate(ano = .y)
   )
-  
-  dados_todos <- dplyr::bind_rows(dados_anos)
-  
-  arrumar_producao(dados_todos)
-  
-}
 
+  dados_todos <- dplyr::bind_rows(dados_anos)
+
+  arrumar_producao(dados_todos)
+}
 
 
 #' Junta a produção ao cadastro e calcula a produção relativa
@@ -61,7 +54,6 @@ empilhar_anos <- function(caminhos) {
 #' @return Tabela integrada com produção relativa.
 
 juntar_cadastro <- function(producao, cadastro) {
-  
   producao %>%
     dplyr::left_join(
       cadastro,
@@ -70,11 +62,7 @@ juntar_cadastro <- function(producao, cadastro) {
     dplyr::mutate(
       mel_relativo = mel / colmeias
     )
-  
 }
-
-
-
 
 
 #' Confere a produção anual
@@ -84,7 +72,6 @@ juntar_cadastro <- function(producao, cadastro) {
 #' meses sem registro e soma da produção.
 
 conferir_producao <- function(dados) {
-  
   dados %>%
     dplyr::group_by(ano) %>%
     dplyr::summarise(
@@ -94,5 +81,4 @@ conferir_producao <- function(dados) {
       soma_valores_registrados = sum(mel, na.rm = TRUE),
       .groups = "drop"
     )
-  
 }

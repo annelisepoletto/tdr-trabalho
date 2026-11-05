@@ -47,6 +47,10 @@ jobs:
 
       - name: Restaurar dependências do R
         uses: r-lib/actions/setup-renv@v2
+      - name: Verificar estilo do código
+        env:
+          LINTR_ERROR_ON_LINT: true
+        run: Rscript -e 'lintr::lint_dir()'
 
       - name: Instalar Quarto
         uses: quarto-dev/quarto-actions/setup@v2

@@ -1,4 +1,3 @@
-
 # ============================================================
 # Funções de leitura dos dados
 # ============================================================
@@ -9,7 +8,6 @@
 #'
 #' @return Tabela com as informações cadastrais.
 ler_cadastro <- function(caminho) {
-  
   readr::read_delim(
     caminho,
     delim = ";",
@@ -23,7 +21,6 @@ ler_cadastro <- function(caminho) {
       colmeias = readr::col_integer()
     )
   )
-  
 }
 
 
@@ -33,7 +30,6 @@ ler_cadastro <- function(caminho) {
 #'
 #' @return Tabela com a produção mensal das unidades.
 ler_producao <- function(caminho) {
-  
   readr::read_delim(
     caminho,
     delim = ";",
@@ -58,5 +54,4 @@ ler_producao <- function(caminho) {
       dez = readr::col_double()
     )
   )
-  
 }
