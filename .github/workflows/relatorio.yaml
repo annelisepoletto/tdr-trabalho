@@ -23,6 +23,7 @@ jobs:
           r-version: "4.4.2"
           use-public-rspm: true
 
+      -
       - name: Instalar bibliotecas do sistema
         run: |
           sudo apt-get update
@@ -38,7 +39,11 @@ jobs:
             libpng-dev \
             libtiff-dev \
             libjpeg-dev \
-            zlib1g-dev
+            zlib1g-dev \
+            libglpk-dev \
+            libx11-dev \
+            pandoc
+
 
       - name: Restaurar dependências do R
         uses: r-lib/actions/setup-renv@v2
