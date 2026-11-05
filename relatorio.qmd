@@ -122,27 +122,17 @@ ggplot(
 Os meses que apresentaram as menores e maiores médias de produção relativa em cada ano estão reunidos na Tabela @tbl-extremos-sazonalidade.
 
 ```{r}
-
 #| label: tbl-extremos-sazonalidade
 #| tbl-cap: "Meses de maior e menor média da produção relativa por ano."
 
 extremos_sazonalidade %>%
-  dplyr::mutate(
-    ano = as.character(ano)
-  ) %>%
+  dplyr::mutate(ano = as.character(ano)) %>%
   knitr::kable(
-    col.names = c(
-      "Ano",
-      "Mês",
-      "Média da produção relativa",
-      "Classificação"
-    ),
+    col.names = c("Ano", "Mês", "Média da produção relativa", "Classificação"),
     digits = c(0, 0, 3, 0),
-    format.args = list(
-      decimal.mark = ",",
-      big.mark = "."
-    )
+    format.args = list(decimal.mark = ",", big.mark = ".")
   )
+```
 ```
 
 Observa-se que os menores valores ocorreram em `r paste(unique(as.character(extremos_sazonalidade$mes[extremos_sazonalidade$classificacao == "Menor média"])), collapse = ", ")`. Já os maiores valores foram registrados em `r paste(paste0(extremos_sazonalidade$ano[extremos_sazonalidade$classificacao == "Maior média"], " (", as.character(extremos_sazonalidade$mes[extremos_sazonalidade$classificacao == "Maior média"]), ")"), collapse = "; ")`.
