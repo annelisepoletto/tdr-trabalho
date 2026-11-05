@@ -23,7 +23,7 @@ jobs:
           r-version: "4.4.2"
           use-public-rspm: true
 
-      -
+     
       - name: Instalar bibliotecas do sistema
         run: |
           sudo apt-get update
