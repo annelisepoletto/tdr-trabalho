@@ -128,16 +128,24 @@ list(
   # ----------------------------------------------------------
   # 9. Variação anual
   # ----------------------------------------------------------
-
+  tar_target(
+    media_anual,
+    resumir_media_anual(mel_integrado)
+  ),
+  tar_target(
+    variacao_anual,
+    calcular_variacao_anual(media_anual)
+  ),
+  # ----------------------------------------------------------
+  # 10. Médias por categoria
+  # ----------------------------------------------------------
   tar_target(
     media_categoria,
     resumir_media_categoria(mel_integrado)
   ),
-
   # ----------------------------------------------------------
   # 11. Relatório final
   # ----------------------------------------------------------
-
   tar_quarto(
     relatorio,
     "relatorio.qmd"

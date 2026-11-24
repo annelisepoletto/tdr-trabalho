@@ -67,6 +67,8 @@ As dependências do projeto são gerenciadas pelo pacote `renv` e estão registr
 
 ## 5. Como reproduzir o projeto
 
+Para reproduzir a análise, é necessário ter instalado o R, o Quarto e o Git. Recomenda-se utilizar o RStudio para abrir e executar o projeto.
+
 Clone o repositório:
 
 ```bash
@@ -75,45 +77,38 @@ git clone --branch trabalho https://github.com/annelisepoletto/tdr-trabalho.git
 
 Abra o arquivo `tdr-trabalho.Rproj` no RStudio.
 
-Instale o `renv`, caso ainda não esteja disponível:
+Instale o pacote `renv`, caso ainda não esteja disponível:
 
 ```r
 install.packages("renv")
 ```
 
-Restaure as dependências:
+Restaure as dependências registradas no projeto:
 
 ```r
 renv::restore()
 ```
 
-Execute o pipeline de análise:
+Execute o pipeline completo:
 
 ```r
 targets::tar_make(callr_function = NULL)
 ```
 
-Gere o relatório:
+O pipeline realiza a leitura, transformação, integração e análise dos dados, além de gerar automaticamente o relatório `relatorio.html`.
 
-```r
-quarto::quarto_render("relatorio.qmd")
-```
-
-Verifique o padrão de estilo do código:
+Para verificar o padrão de estilo do código:
 
 ```r
 lintr::lint_dir()
 ```
 
-O relatório final é gerado no arquivo `relatorio.html`.
-
+O relatório final e seus recursos são gerados na pasta do projeto.
 ## 6. Pipeline e integração contínua
 
 O projeto utiliza o pacote `targets` para organizar as etapas de leitura, transformação, integração e resumo dos dados, permitindo executar novamente a análise de maneira estruturada.
 
-A integração contínua é realizada pelo GitHub Actions, por meio do arquivo `.github/workflows/relatorio.yaml`.
-
-O workflow é acionado em eventos de `push` e `pull_request` direcionados à branch `trabalho`. Durante a execução, são restauradas as dependências, verificado o estilo do código, executado o pipeline e renderizado o relatório.
+A integração contínua é realizada pelo GitHub Actions, por meio do arquivo `.github/workflows/relatorio.yaml`. O workflow é acionado em eventos de `push` na branch `trabalho` e de `pull_request` direcionados à branch principal (`main`). Durante a execução, são restauradas as dependências, verificado o estilo do código e executado o pipeline do projeto, que também gera o relatório HTML.
 
 Ao final, o arquivo HTML e seus recursos são disponibilizados como artefato para download na página da execução do GitHub Actions.
 
@@ -123,5 +118,4 @@ Foi utilizada a ferramenta ChatGPT, da OpenAI, como apoio ao desenvolvimento do 
 
 A ferramenta também foi utilizada como apoio à organização e revisão da documentação.
 
-As sugestões foram avaliadas pela autora, e os códigos, resultados das análises, tabelas, figuras e relatório foram conferidos durante a execução do projeto.
-
+As sugestões fornecidas pela ferramenta foram avaliadas pela autora antes de sua utilização. Os códigos foram verificados por meio de sua execução no R, os resultados foram conferidos com base nos dados e nas saídas produzidas pelo pipeline, e as tabelas, figuras e interpretações foram revisadas em relação aos resultados obtidos. A ferramenta foi utilizada como apoio, sem substituir a análise e as decisões da autora.

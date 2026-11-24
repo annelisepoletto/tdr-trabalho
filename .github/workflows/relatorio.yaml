@@ -6,8 +6,6 @@ on:
     branches:
       - trabalho
   pull_request:
-    branches:
-      - trabalho
 
 jobs:
   renderizar:
@@ -57,9 +55,6 @@ jobs:
 
       - name: Executar pipeline
         run: Rscript -e 'targets::tar_make(callr_function = NULL)'
-
-      - name: Renderizar relatório
-        run: quarto render relatorio.qmd
 
       - name: Disponibilizar relatório para download
         uses: actions/upload-artifact@v7
