@@ -3,9 +3,16 @@
 # ============================================================
 
 library(targets)
+library(tarchetypes)
 
 tar_option_set(
-  packages = c("tidyverse")
+  packages = c(
+    "dplyr",
+    "purrr",
+    "readr",
+    "tibble",
+    "tidyr"
+  )
 )
 
 # ============================================================
@@ -46,63 +53,25 @@ list(
   ),
 
   # ----------------------------------------------------------
-  # 2. Leitura dos dados
+  # 2. Leitura do cadastro
   # ----------------------------------------------------------
 
   tar_target(
     cadastro,
     ler_cadastro(arquivo_cadastro)
   ),
-  tar_target(
-    producao_2023,
-    ler_producao(arquivo_2023)
-  ),
-  tar_target(
-    producao_2024,
-    ler_producao(arquivo_2024)
-  ),
-  tar_target(
-    producao_2025,
-    ler_producao(arquivo_2025)
-  ),
 
   # ----------------------------------------------------------
-  # 3. Transformação dos dados
-  # ----------------------------------------------------------
-
-  tar_target(
-    dados_2023,
-    arrumar_producao(
-      producao_2023 %>%
-        dplyr::mutate(ano = 2023)
-    )
-  ),
-  tar_target(
-    dados_2024,
-    arrumar_producao(
-      producao_2024 %>%
-        dplyr::mutate(ano = 2024)
-    )
-  ),
-  tar_target(
-    dados_2025,
-    arrumar_producao(
-      producao_2025 %>%
-        dplyr::mutate(ano = 2025)
-    )
-  ),
-
-  # ----------------------------------------------------------
-  # 4. Empilhamento dos anos
+  # 3. Leitura, transformação e empilhamento dos anos
   # ----------------------------------------------------------
 
   tar_target(
     dados_todos,
-    dplyr::bind_rows(
-      dados_2023,
-      dados_2024,
-      dados_2025
-    )
+    empilhar_anos(c(
+      arquivo_2023,
+      arquivo_2024,
+      arquivo_2025
+    ))
   ),
 
   # ----------------------------------------------------------
@@ -161,20 +130,16 @@ list(
   # ----------------------------------------------------------
 
   tar_target(
-    media_anual,
-    resumir_media_anual(mel_integrado)
-  ),
-  tar_target(
-    variacao_anual,
-    calcular_variacao_anual(media_anual)
-  ),
-
-  # ----------------------------------------------------------
-  # 10. Médias por categoria
-  # ----------------------------------------------------------
-
-  tar_target(
     media_categoria,
     resumir_media_categoria(mel_integrado)
+  ),
+
+  # ----------------------------------------------------------
+  # 11. Relatório final
+  # ----------------------------------------------------------
+
+  tar_quarto(
+    relatorio,
+    "relatorio.qmd"
   )
 )

@@ -61,8 +61,8 @@ A Tabela @tbl-conferencia apresenta a conferência dos registros de produção, 
 #| label: tbl-conferencia
 #| tbl-cap: "Conferência anual dos dados de produção."
 
-conferencia %>%
-  dplyr::mutate(ano = as.character(ano)) %>%
+conferencia |>
+  dplyr::mutate(ano = as.character(ano)) |>
   knitr::kable(
     col.names = c(
       "Ano",
@@ -125,8 +125,8 @@ Os meses que apresentaram as menores e maiores médias de produção relativa em
 #| label: tbl-extremos-sazonalidade
 #| tbl-cap: "Meses de maior e menor média da produção relativa por ano."
 
-extremos_sazonalidade %>%
-  dplyr::mutate(ano = as.character(ano)) %>%
+extremos_sazonalidade |>
+  dplyr::mutate(ano = as.character(ano)) |>
   knitr::kable(
     col.names = c("Ano", "Mês", "Média da produção relativa", "Classificação"),
     digits = c(0, 0, 3, 0),
@@ -147,8 +147,8 @@ A Tabela @tbl-media-anual apresenta a média da produção relativa para cada an
 #| label: tbl-media-anual
 #| tbl-cap: "Média anual da produção relativa."
 
-media_anual %>%
-  dplyr::mutate(ano = as.character(ano)) %>%
+media_anual |>
+  dplyr::mutate(ano = as.character(ano)) |>
   knitr::kable(
     col.names = c(
       "Ano",
@@ -162,7 +162,7 @@ media_anual %>%
   )
 ```
 
-Entre `r variacao_anual |> dplyr::pull(media_2023) |> format(decimal.mark = ",", big.mark = ".", nsmall = 3, scientific = FALSE, trim = TRUE)` e `r format(variacao_anual$media_2025, decimal.mark = ",", big.mark = ".", nsmall = 3, scientific = FALSE, trim = TRUE)`, a variação percentual da média da produção relativa foi de `r paste0(format(variacao_anual$variacao_percentual, decimal.mark = ",", big.mark = ".", nsmall = 2, scientific = FALSE, trim = TRUE), "%")`.
+Entre `r variacao_anual |> dplyr::pull(media_2023) |> format(decimal.mark = ",", big.mark = ".", nsmall = 3, scientific = FALSE, trim = TRUE)` e `r format(variacao_anual$media_2025, decimal.mark = ",", big.mark = ".", nsmall = 3, scientific = FALSE, trim = TRUE)`, a variação percentual da média da produção relativa foi de `r paste0(format(variacao_anual$variacao_percentual, decimal.mark = ",", big.mark = ".", nsmall = 2, scientific = FALSE, trim = TRUE), "|>")`.
 
 Esse resultado representa um `r ifelse(variacao_anual$variacao_percentual >= 0, "aumento", "redução")` da média da produção relativa entre os anos comparados.
 
@@ -205,8 +205,8 @@ A Tabela @tbl-media-categoria apresenta as médias da produção relativa para c
 #| label: tbl-media-categoria
 #| tbl-cap: "Média da produção relativa por categoria de florada."
 
-resumo_categoria_ano %>%
-  dplyr::mutate(ano = as.character(ano)) %>%
+resumo_categoria_ano |>
+  dplyr::mutate(ano = as.character(ano)) |>
   knitr::kable(
     col.names = c(
       "Ano",
@@ -261,8 +261,8 @@ A Tabela @tbl-categoria-ano apresenta a produção total e a participação rela
 #| label: tbl-categoria-ano
 #| tbl-cap: "Produção por categoria de florada e ano."
 
-resumo_categoria_ano %>%
-  dplyr::mutate(ano = as.character(ano)) %>%
+resumo_categoria_ano |>
+  dplyr::mutate(ano = as.character(ano)) |>
   knitr::kable(
     col.names = c(
       "Ano",

@@ -13,12 +13,12 @@ arrumar_producao <- function(dados) {
     "jul", "ago", "set", "out", "nov", "dez"
   )
 
-  dados %>%
+  dados |>
     tidyr::pivot_longer(
       cols = dplyr::all_of(meses),
       names_to = "mes",
       values_to = "mel"
-    ) %>%
+    ) |>
     dplyr::mutate(
       mes = factor(mes, levels = meses)
     )
@@ -37,7 +37,7 @@ empilhar_anos <- function(caminhos) {
       caminhos,
       ~ readr::parse_number(basename(.x))
     ),
-    ~ ler_producao(.x) %>%
+    ~ ler_producao(.x) |>
       dplyr::mutate(ano = .y)
   )
 
@@ -54,31 +54,13 @@ empilhar_anos <- function(caminhos) {
 #' @return Tabela integrada com produção relativa.
 
 juntar_cadastro <- function(producao, cadastro) {
-  producao %>%
+  producao |>
     dplyr::left_join(
       cadastro,
-      by = "codigo"
-    ) %>%
+      by = "codigo",
+      relationship = "many-to-one"
+    ) |>
     dplyr::mutate(
       mel_relativo = mel / colmeias
-    )
-}
-
-
-#' Confere a produção anual
-#'
-#' @param dados Tabela de produção no formato longo.
-#' @return Resumo anual com linhas, unidades,
-#' meses sem registro e soma da produção.
-
-conferir_producao <- function(dados) {
-  dados %>%
-    dplyr::group_by(ano) %>%
-    dplyr::summarise(
-      linhas = dplyr::n(),
-      unidades = dplyr::n_distinct(codigo),
-      meses_sem_registro = sum(is.na(mel)),
-      soma_valores_registrados = sum(mel, na.rm = TRUE),
-      .groups = "drop"
     )
 }

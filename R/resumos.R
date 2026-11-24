@@ -6,19 +6,15 @@
 # ============================================================
 # 1. Resumo da produção por unidade produtora
 # ============================================================
-
 resumir_unidade <- function(dados) {
-  resumo <- dados %>%
-    dplyr::group_by(codigo, nome, florada) %>%
+  dados |>
+    dplyr::group_by(codigo, nome, florada) |>
     dplyr::summarise(
+      meses = sum(!is.na(mel)),
       producao_total = sum(mel, na.rm = TRUE),
+      media_relativa = mean(mel_relativo, na.rm = TRUE),
       .groups = "drop"
-    ) %>%
-    dplyr::mutate(
-      producao_relativa = producao_total / sum(producao_total)
     )
-
-  resumo
 }
 
 
@@ -27,12 +23,12 @@ resumir_unidade <- function(dados) {
 # ============================================================
 
 resumir_categoria <- function(dados) {
-  resumo <- dados %>%
-    dplyr::group_by(florada) %>%
+  resumo <- dados |>
+    dplyr::group_by(florada) |>
     dplyr::summarise(
       producao_total = sum(mel, na.rm = TRUE),
       .groups = "drop"
-    ) %>%
+    ) |>
     dplyr::mutate(
       producao_relativa = producao_total / sum(producao_total)
     )
@@ -46,16 +42,16 @@ resumir_categoria <- function(dados) {
 # ============================================================
 
 resumir_categoria_ano <- function(dados) {
-  resumo <- dados %>%
-    dplyr::group_by(ano, florada) %>%
+  resumo <- dados |>
+    dplyr::group_by(ano, florada) |>
     dplyr::summarise(
       producao_total = sum(mel, na.rm = TRUE),
       .groups = "drop"
-    ) %>%
-    dplyr::group_by(ano) %>%
+    ) |>
+    dplyr::group_by(ano) |>
     dplyr::mutate(
       producao_relativa = producao_total / sum(producao_total)
-    ) %>%
+    ) |>
     dplyr::ungroup()
 
   resumo
@@ -67,8 +63,8 @@ resumir_categoria_ano <- function(dados) {
 # ============================================================
 
 conferir_producao <- function(dados) {
-  dados %>%
-    dplyr::group_by(ano) %>%
+  dados |>
+    dplyr::group_by(ano) |>
     dplyr::summarise(
       linhas = dplyr::n(),
       unidades = dplyr::n_distinct(codigo),
@@ -84,13 +80,13 @@ conferir_producao <- function(dados) {
 # ============================================================
 
 resumir_sazonalidade <- function(dados) {
-  dados %>%
-    dplyr::filter(!is.na(mel_relativo)) %>%
-    dplyr::group_by(ano, mes) %>%
+  dados |>
+    dplyr::filter(!is.na(mel_relativo)) |>
+    dplyr::group_by(ano, mes) |>
     dplyr::summarise(
       media_relativa = mean(mel_relativo),
       .groups = "drop"
-    ) %>%
+    ) |>
     dplyr::arrange(ano, mes)
 }
 
@@ -100,19 +96,19 @@ resumir_sazonalidade <- function(dados) {
 # ============================================================
 
 resumir_extremos_sazonalidade <- function(dados) {
-  dados %>%
-    dplyr::group_by(ano) %>%
+  dados |>
+    dplyr::group_by(ano) |>
     dplyr::filter(
       media_relativa == min(media_relativa) |
         media_relativa == max(media_relativa)
-    ) %>%
+    ) |>
     dplyr::mutate(
       classificacao = dplyr::if_else(
         media_relativa == min(media_relativa),
         "Menor média",
         "Maior média"
       )
-    ) %>%
+    ) |>
     dplyr::ungroup()
 }
 
@@ -122,13 +118,13 @@ resumir_extremos_sazonalidade <- function(dados) {
 # ============================================================
 
 resumir_media_anual <- function(dados) {
-  dados %>%
-    dplyr::filter(!is.na(mel_relativo)) %>%
-    dplyr::group_by(ano) %>%
+  dados |>
+    dplyr::filter(!is.na(mel_relativo)) |>
+    dplyr::group_by(ano) |>
     dplyr::summarise(
       media_relativa = mean(mel_relativo),
       .groups = "drop"
-    ) %>%
+    ) |>
     dplyr::arrange(ano)
 }
 
@@ -138,12 +134,12 @@ resumir_media_anual <- function(dados) {
 # ============================================================
 
 calcular_variacao_anual <- function(dados) {
-  media_2023 <- dados %>%
-    dplyr::filter(ano == 2023) %>%
+  media_2023 <- dados |>
+    dplyr::filter(ano == 2023) |>
     dplyr::pull(media_relativa)
 
-  media_2025 <- dados %>%
-    dplyr::filter(ano == 2025) %>%
+  media_2025 <- dados |>
+    dplyr::filter(ano == 2025) |>
     dplyr::pull(media_relativa)
 
   if (
@@ -171,12 +167,12 @@ calcular_variacao_anual <- function(dados) {
 # ============================================================
 
 resumir_media_categoria <- function(dados) {
-  dados %>%
-    dplyr::filter(!is.na(mel_relativo)) %>%
-    dplyr::group_by(florada) %>%
+  dados |>
+    dplyr::filter(!is.na(mel_relativo)) |>
+    dplyr::group_by(florada) |>
     dplyr::summarise(
       media_relativa = mean(mel_relativo),
       .groups = "drop"
-    ) %>%
+    ) |>
     dplyr::arrange(dplyr::desc(media_relativa))
 }
