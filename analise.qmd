@@ -41,12 +41,12 @@ library(tidyverse)
 ```
 
 ```{r}
-mel_long <- mel_2023 %>%
+mel_long <- mel_2023 |>
   pivot_longer(
     cols = jan:dez,
     names_to = "mes",
     values_to = "mel"
-  ) %>%
+  ) |>
   mutate(
     mes = factor(
       mes,
@@ -60,18 +60,20 @@ nrow(mel_long)
 
 sum(is.na(mel_long$mel))
 ```
+
 ```{r}
-mel_cadastro <- mel_long %>%
+mel_cadastro <- mel_long |>
   left_join(
     cadastro,
     by = join_by(codigo)
   )
 nrow(mel_cadastro)
-mel_cadastro <- mel_cadastro %>%
+mel_cadastro <- mel_cadastro |>
   mutate(
     mel_relativo = mel / colmeias
   )
 ```
+
 ```{r}
 anti_join(
   cadastro,
@@ -81,8 +83,8 @@ anti_join(
 ```
 
 ```{r}
-resumo_unidade <- mel_cadastro %>%
-  group_by(codigo, nome, florada) %>%
+resumo_unidade <- mel_cadastro |>
+  group_by(codigo, nome, florada) |>
   summarise(
     meses_com_registro = sum(!is.na(mel)),
     total_ano = sum(mel, na.rm = TRUE),
@@ -93,8 +95,8 @@ resumo_unidade
 ```
 
 ```{r}
-resumo_categoria <- mel_cadastro %>%
-  group_by(florada) %>%
+resumo_categoria <- mel_cadastro |>
+  group_by(florada) |>
   summarise(
     unidades = n_distinct(codigo),
     total_ano = sum(mel, na.rm = TRUE),
@@ -108,8 +110,7 @@ resumo_categoria
 sum(resumo_categoria$total_ano)
 ```
 
-O total anual de mel registrado em 2023 foi de `r format(sum(resumo_categoria$total_ano), decimal.mark = ",", big.mark = ".")` kg.
-# Exercício 5 — Todos os anos de uma vez
+O total anual de mel registrado em 2023 foi de `r format(sum(resumo_categoria$total_ano), decimal.mark = ",", big.mark = ".")` kg. \# Exercício 5 — Todos os anos de uma vez
 
 ```{r}
 arquivos <- list.files(
@@ -156,7 +157,7 @@ dados_anos <- map(
 dados_anos <- map2(
   dados_anos,
   arquivos,
-  ~ .x %>%
+  ~ .x |>
     mutate(
       ano = parse_number(basename(.y))
     )
@@ -165,24 +166,23 @@ dados_anos <- map2(
 dados_anos
 ```
 
-
-
 ```{r}
 dados_todos <- list_rbind(dados_anos)
 
 dados_todos
 ```
+
 ```{r}
 names(dados_todos)
 ```
 
 ```{r}
-dados_longos <- dados_todos %>%
+dados_longos <- dados_todos |>
   pivot_longer(
     cols = jan:dez,
     names_to = "mes",
     values_to = "mel"
-  ) %>%
+  ) |>
   mutate(
     mes = factor(
       mes,
@@ -195,8 +195,9 @@ dados_longos <- dados_todos %>%
 
 dados_longos
 ```
+
 ```{r}
-mel_cadastro_anos <- dados_longos %>%
+mel_cadastro_anos <- dados_longos |>
   left_join(
     cadastro,
     by = join_by(codigo)
@@ -206,7 +207,7 @@ nrow(mel_cadastro_anos)
 ```
 
 ```{r}
-mel_cadastro_anos <- mel_cadastro_anos %>%
+mel_cadastro_anos <- mel_cadastro_anos |>
   mutate(
     mel_relativo = mel / colmeias
   )
@@ -215,12 +216,12 @@ mel_cadastro_anos
 ```
 
 ```{r}
-tabela_apresentacao <- mel_cadastro_anos %>%
-  group_by(florada, ano) %>%
+tabela_apresentacao <- mel_cadastro_anos |>
+  group_by(florada, ano) |>
   summarise(
     total_ano = sum(mel, na.rm = TRUE),
     .groups = "drop"
-  ) %>%
+  ) |>
   pivot_wider(
     names_from = ano,
     values_from = total_ano
@@ -228,4 +229,3 @@ tabela_apresentacao <- mel_cadastro_anos %>%
 
 tabela_apresentacao
 ```
-
